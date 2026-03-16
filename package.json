@@ -11,5 +11,10 @@
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@11.0.0-alpha.13",
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.1"
+  }
 }
