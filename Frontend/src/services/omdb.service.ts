@@ -1,35 +1,30 @@
-const API_URL = "https://www.omdbapi.com";
-const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
+export async function searchMovies(query: string, page: number = 1) {
+  const url = `https://www.omdbapi.com/?s=${query}&page=${page}&apikey=42eeb430`;
 
-export async function searchMovies(query: string, page = 1) {
-  try {
-    const response = await fetch(
-      `${API_URL}/?s=${encodeURIComponent(query)}&page=${page}&apikey=${API_KEY}`
-    );
+  const response = await fetch(url);
 
-    if (!response.ok) {
-      throw new Error("Erreur réseau");
-    }
-
-    const data = await response.json();
-
-    if (data.Response === "False") {
-      throw new Error(data.Error);
-    }
-
-    return data.Search;
-  } catch (error) {
-    console.error("Erreur searchMovies:", error);
-    return [];
+  if (!response.ok) {
+    throw new Error("Erreur API");
   }
-}
-
-export async function getMovieById(imdbID: string) {
-  const response = await fetch(
-    `${API_URL}/?i=${imdbID}&plot=full&apikey=${API_KEY}`
-  );
 
   const data = await response.json();
 
+  if (data.Response === "False") {
+    return [];
+  }
+
+  return data.Search;
+}
+
+export async function getMovieById(id: string) {
+  const url = `https://www.omdbapi.com/?i=${id}&plot=full&apikey=42eeb430`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error("Erreur API");
+  }
+
+  const data = await response.json();
   return data;
 }

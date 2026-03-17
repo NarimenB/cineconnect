@@ -1,11 +1,11 @@
-
 import { useParams } from '@tanstack/react-router';
 
 const CategoryPage = () => {
-  const params = useParams({ from: 'category' }); // pour récupérer $categorie
+  const { categorie } = useParams({ from: '/films/$categorie' });
+
   return (
     <div>
-      <h1>Catégorie : {params.categorie}</h1>
+      <h1>Catégorie : {categorie}</h1>
       <p>Films de cette catégorie</p>
     </div>
   );
