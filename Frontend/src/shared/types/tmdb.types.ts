@@ -1,4 +1,4 @@
-export type TmdbMovie = {
+export interface TmdbMovie {
   id: number;
   title: string;
   overview: string;
@@ -7,28 +7,31 @@ export type TmdbMovie = {
   release_date: string;
   vote_average: number;
   genre_ids?: number[];
-};
+}
 
-export type TmdbGenre = {
+export interface TmdbGenre {
   id: number;
   name: string;
-};
+}
 
-export type TmdbMoviesResponse = {
+export interface TmdbCastMember {
+  id: number;
+  name: string;
+  character?: string;
+  profile_path?: string | null;
+}
+
+export interface TmdbMoviesResponse {
   page: number;
   results: TmdbMovie[];
   total_pages: number;
   total_results: number;
-};
+}
 
-export type TmdbMovieDetail = TmdbMovie & {
+export interface TmdbMovieDetail extends TmdbMovie {
   genres?: TmdbGenre[];
+  runtime?: number;
   credits?: {
-    cast: {
-      id: number;
-      name: string;
-      character?: string;
-      profile_path?: string | null;
-    }[];
+    cast: TmdbCastMember[];
   };
-};
+}

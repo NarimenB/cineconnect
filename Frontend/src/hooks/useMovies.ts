@@ -1,23 +1,34 @@
-import { useQuery } from '@tanstack/react-query';
-import { searchMovies, getMovieById } from '../services/omdb.service';
-import { OmdbMovie, OmdbMovieDetail } from '../shared/types/omdb.types';
+import { useQuery } from "@tanstack/react-query";
+import { searchMovies, getMovieById } from "../services/tmdb.service";
+import type {
+  TmdbMovieDetail,
+  TmdbMoviesResponse,
+} from "../shared/types/tmdb.types";
 
 export const useSearchMovies = (query: string) => {
-  return useQuery<OmdbMovie[]>({
-    queryKey: ['movies', query],
+  return useQuery<TmdbMoviesResponse>({
+    queryKey: ["movies", query],
     queryFn: () => searchMovies(query),
-    enabled: !!query, // évite de fetch si query vide
+    enabled: !!query,
   });
 };
 
-export const getMovieDetail = async (id: string): Promise<OmdbMovieDetail> => {
-  return await getMovieById(id) as OmdbMovieDetail;
+export const getMovieDetail = async (id: string): Promise<TmdbMovieDetail> => {
+  const movieId = Number(id);
+
+  if (Number.isNaN(movieId)) {
+    throw new Error("ID de film invalide");
+  }
+
+  return getMovieById(movieId);
 };
 
 export const useMovieDetail = (id: string) => {
-  return useQuery<OmdbMovieDetail>({
-    queryKey: ['movieDetail', id],
-    queryFn: () => getMovieDetail(id),
-    enabled: !!id,
+  const movieId = Number(id);
+
+  return useQuery<TmdbMovieDetail>({
+    queryKey: ["movieDetail", movieId],
+    queryFn: () => getMovieById(movieId),
+    enabled: !Number.isNaN(movieId),
   });
 };

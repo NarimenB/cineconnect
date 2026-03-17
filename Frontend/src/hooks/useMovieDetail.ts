@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { getMovieById } from "../services/omdb.service";
-import { OmdbMovieDetail } from "../shared/types/omdb.types";
+import { getMovieById } from "../services/tmdb.service";
+import type { TmdbMovieDetail } from "../shared/types/tmdb.types";
 
 export function useMovieDetail(id: string) {
-  return useQuery<OmdbMovieDetail>({
-    queryKey: ["movie", id],
-    queryFn: () => getMovieById(id),
-    enabled: !!id,
+  const movieId = Number(id);
+
+  return useQuery<TmdbMovieDetail>({
+    queryKey: ["movie", movieId],
+    queryFn: () => getMovieById(movieId),
+    enabled: !Number.isNaN(movieId),
   });
 }

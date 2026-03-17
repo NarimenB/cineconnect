@@ -18,6 +18,7 @@ body {
   margin: 0;
   background: rgb(24, 148, 49);
   min-height: 100vh;
+   font-family: 'Inter', sans-serif;
 }
 
 /* 🔗 Liens */
@@ -32,9 +33,11 @@ a:hover {
 }
 
 /* 🎬 Titres */
-h1, h2, h3 {
+ h2, h3 {
   margin: 0;
 }
+
+
 
 /* 🎥 Scroll horizontal Netflix */
 ::-webkit-scrollbar {

@@ -1,118 +1,69 @@
-import { useParams, Link } from "@tanstack/react-router";
+import { useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getMovieById } from "../services/omdb.service";
+import { getMovieById } from "../services/tmdb.service";
 import { useState } from "react";
 
 export default function FilmDetailPage() {
   const { id } = useParams({ from: "/film/$id" });
+  const movieId = Number(id);
 
-  const { data: movie, isLoading } = useQuery({
-    queryKey: ["movie", id],
-    queryFn: () => getMovieById(id),
+  const { data: movie, isLoading, isError } = useQuery({
+    queryKey: ["movie", movieId],
+    queryFn: () => getMovieById(movieId),
+    enabled: !Number.isNaN(movieId),
   });
 
   const [rating, setRating] = useState(0);
 
-  if (isLoading) {
-    return <p className="text-white p-6">Loading...</p>;
-  }
-
-  if (!movie) {
-    return <p className="text-white p-6">Film introuvable</p>;
-  }
-
-  const genres = movie?.Genre ? movie.Genre.split(",") : [];
+  if (Number.isNaN(movieId)) return <p>Film invalide</p>;
+  if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Erreur lors du chargement du film</p>;
+  if (!movie) return <p>Film introuvable</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 text-white">
-
-      {/* Bouton retour */}
+    <div className="mx-auto max-w-4xl p-6 text-white">
       <button
         onClick={() => window.history.back()}
-        className="mb-6 text-blue-400 hover:underline"
+        className="mb-6 text-blue-400"
       >
         ← Retour
       </button>
 
-      <div className="flex gap-6 flex-col md:flex-row">
-
-        {/* Affiche */}
+      <div className="flex gap-6">
         <img
-          src={movie.Poster !== "N/A" ? movie.Poster : ""}
-          alt={movie.Title}
+          src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+          alt={movie.title}
           className="w-64 rounded-lg"
         />
 
         <div>
-          {/* Titre */}
-          <h1 className="text-3xl font-bold">{movie.Title}</h1>
+          <h1 className="text-3xl font-bold">{movie.title}</h1>
+          <p className="mt-2">⭐ {movie.vote_average}</p>
+          <p className="mt-2">Date : {movie.release_date}</p>
+          <p className="mt-4 text-gray-300">{movie.overview}</p>
 
-          {/* Genres */}
-          <div className="mt-2 flex flex-wrap gap-2">
-            {genres.map((genre: string) => (
-              <Link
-                key={genre}
-                to="/films/$categorie"
-                params={{ categorie: genre.trim().toLowerCase() }}
-                className="bg-gray-800 px-3 py-1 rounded-full text-sm hover:bg-red-600 transition"
+          <p className="mt-4">
+            <strong>Acteurs :</strong>
+          </p>
+
+          <ul className="text-sm text-gray-400">
+            {movie.credits?.cast?.slice(0, 5).map((actor: any) => (
+              <li key={actor.id}>{actor.name}</li>
+            ))}
+          </ul>
+
+          <div className="mt-6 flex gap-2 text-2xl">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <span
+                key={star}
+                onClick={() => setRating(star)}
+                className={star <= rating ? "text-yellow-400" : "text-gray-500"}
               >
-                {genre}
-              </Link>
+                ★
+              </span>
             ))}
           </div>
-
-          {/* Infos film */}
-          <p className="mt-4">
-            <strong>Director :</strong> {movie.Director || "Unknown"}
-          </p>
-
-          <p className="mt-2">
-            <strong>Actors :</strong> {movie.Actors || "Unknown"}
-          </p>
-
-          <p className="mt-2">
-            <strong>Release Date :</strong> {movie.Released || "Unknown"}
-          </p>
-
-          <p className="mt-2">
-            <strong>Runtime :</strong> {movie.Runtime || "Unknown"}
-          </p>
-
-          <p className="mt-2">
-            <strong>Language :</strong> {movie.Language || "Unknown"}
-          </p>
-
-          <p className="mt-4">
-            <strong>IMDb Rating :</strong> ⭐ {movie.imdbRating || "N/A"}
-          </p>
-
-          {/* Notation utilisateur */}
-          <div className="mt-6">
-            <p className="mb-2 font-semibold">Notez ce film :</p>
-
-            <div className="flex gap-2 text-3xl cursor-pointer">
-              {[1,2,3,4,5].map((star) => (
-                <span
-                  key={star}
-                  onClick={() => setRating(star)}
-                  className={star <= rating ? "text-yellow-400" : "text-white"}
-                >
-                  ★
-                </span>
-              ))}
-            </div>
-
-            <p className="text-sm text-gray-400 mt-2">
-              Votre note : {rating}/5
-            </p>
-          </div>
-
-          {/* Synopsis */}
-          <p className="mt-6 text-gray-300">
-            {movie.Plot || "No description available"}
-          </p>
         </div>
-
       </div>
     </div>
   );

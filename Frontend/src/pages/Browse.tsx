@@ -1,73 +1,67 @@
-// src/pages/browse.tsx
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 import MovieCard from "../components/MovieCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useSearchMovies } from "../hooks/useMovies";
-import { OmdbMovie } from "../shared/types/omdb.types";
+import type { TmdbMovie } from "../shared/types/tmdb.types";
 
 export function Browse() {
-  // Search par défaut
-  const [searchQuery, setSearchQuery] = useState<string>("movie");
+  const [searchQuery, setSearchQuery] = useState("movie");
 
-  const { data: movies, isLoading, error } = useSearchMovies(searchQuery);
+  const { data, isLoading, error } = useSearchMovies(searchQuery);
+  const movies = data?.results ?? [];
 
   return (
-    <div className="bg-black min-h-screen">
+    <div className="min-h-screen bg-black">
       <Navbar />
 
-      <div className="pt-24 px-4 md:px-12 pb-20">
-        {/* Header */}
+      <div className="px-4 pb-20 pt-24 md:px-12">
         <div className="mb-8 space-y-4">
-          <h1 className="text-white text-3xl md:text-4xl">
+          <h1 className="text-3xl text-white md:text-4xl">
             Explorer les films
           </h1>
 
-          {/* Search Input */}
           <div className="max-w-md">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Rechercher un film..."
-              className="w-full px-4 py-2 bg-zinc-800 text-white rounded border border-zinc-700 focus:border-white focus:outline-none"
+              className="w-full rounded border border-zinc-700 bg-zinc-800 px-4 py-2 text-white focus:border-white focus:outline-none"
             />
           </div>
         </div>
 
-        {/* Loading State */}
         {isLoading && (
           <div className="flex justify-center py-20">
             <LoadingSpinner size="lg" />
           </div>
         )}
 
-        {/* Error State */}
         {error && (
-          <div className="text-center py-20">
-            <p className="text-red-400 text-xl">
+          <div className="py-20 text-center">
+            <p className="text-xl text-red-400">
               {(error as Error).message || "Erreur lors du chargement des films"}
             </p>
           </div>
         )}
 
-        {/* Movies Grid */}
-        {(movies ?? []).length ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {(movies ?? []).map((movie: OmdbMovie) => (
+        {movies.length ? (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            {movies.map((movie: TmdbMovie) => (
               <MovieCard
-                key={movie.imdbID}
-                title={movie.Title}
-                year={movie.Year}
-                poster={movie.Poster}
-                imdbID={movie.imdbID}
+                key={movie.id}
+                title={movie.title}
+                year={movie.release_date?.split("-")[0] ?? "N/A"}
+                posterPath={movie.poster_path}
+                movieId={movie.id}
               />
             ))}
           </div>
         ) : (
           !isLoading && (
-            <div className="text-center py-20">
-              <p className="text-white/60 text-xl">
+            <div className="py-20 text-center">
+              <p className="text-xl text-white/60">
                 Aucun film trouvé pour "{searchQuery}"
               </p>
             </div>

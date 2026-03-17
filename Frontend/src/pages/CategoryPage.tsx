@@ -1,75 +1,112 @@
-import { useParams, Link } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getMoviesByCategory } from "../services/omdb.service";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { getMoviesByGenre } from "../services/tmdb.service";
+
+type Movie = {
+  id: number;
+  title: string;
+  poster_path: string | null;
+  overview?: string;
+  release_date?: string;
+  backdrop_path?: string | null;
+};
+
+type MoviesResponse = {
+  results: Movie[];
+};
 
 const CategoryPage = () => {
   const { categorie } = useParams({ from: "/films/$categorie" });
+  const genreId = Number(categorie);
 
-  const { data: movies, isLoading } = useQuery({
-    queryKey: ["category", categorie],
-    queryFn: () => getMoviesByCategory(categorie),
+  const { data, isLoading, isError } = useQuery<MoviesResponse>({
+    queryKey: ["genre", genreId],
+    queryFn: () => getMoviesByGenre(genreId),
+    enabled: !Number.isNaN(genreId),
   });
 
-  const [selectedMovie, setSelectedMovie] = useState<any>(null);
+  const movies = data?.results ?? [];
+  const filteredMovies = movies.filter((movie) => movie.poster_path);
 
-  // 🎬 Initialiser avec le premier film
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+
   useEffect(() => {
-    if (movies && movies.length > 0) {
-      setSelectedMovie(movies[0]);
+    if (filteredMovies.length > 0) {
+      setSelectedMovie(filteredMovies[0]);
     }
-  }, [movies]);
+  }, [filteredMovies]);
 
-  if (isLoading) return <p>Loading...</p>;
+  if (Number.isNaN(genreId)) {
+    return <p>Genre invalide.</p>;
+  }
+
+  if (isLoading) {
+    return <p>Chargement...</p>;
+  }
+
+  if (isError) {
+    return <p>Erreur lors du chargement des films.</p>;
+  }
+
+  if (!filteredMovies.length) {
+    return <p>Aucun film trouvé pour cette catégorie.</p>;
+  }
 
   return (
     <div className="p-6 text-white">
-      <h1 className="text-2xl font-bold mb-6">
-        Catégorie : {categorie}
-      </h1>
+      <h1 className="mb-6 text-2xl font-bold">Catégorie : {categorie}</h1>
 
-      {/* 🎬 HERO (grande affiche style Netflix) */}
       {selectedMovie && (
-        <div className="relative w-full h-[500px] mb-8">
+        <div className="group relative mb-10 h-[500px] w-full overflow-hidden rounded-xl">
           <img
-            src={selectedMovie.Poster}
-            alt={selectedMovie.Title}
-            className="w-full h-full object-cover rounded-xl"
+            src={`https://image.tmdb.org/t/p/original${
+              selectedMovie.backdrop_path || selectedMovie.poster_path
+            }`}
+            alt={selectedMovie.title}
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
 
-          {/* Gradient sombre */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent rounded-xl"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
 
-          {/* Infos film */}
-          <div className="absolute bottom-6 left-6">
-            <h2 className="text-4xl font-bold">
-              {selectedMovie.Title}
-            </h2>
+          <div className="absolute bottom-10 left-10 max-w-xl">
+            <h2 className="mb-4 text-5xl font-bold">{selectedMovie.title}</h2>
 
-            <Link
-              to="/film/$id"
-              params={{ id: selectedMovie.imdbID }}
-              className="inline-block mt-4 px-6 py-2 bg-white text-black rounded-lg font-semibold hover:bg-gray-300 transition"
-            >
-              Voir détails
-            </Link>
+            {selectedMovie.overview && (
+              <p className="mb-4 line-clamp-3 text-gray-300">
+                {selectedMovie.overview}
+              </p>
+            )}
+
+            <div className="flex gap-4">
+              <Link
+                to="/film/$id"
+                params={{ id: String(selectedMovie.id) }}
+                className="rounded-lg bg-white px-6 py-3 font-semibold text-black transition hover:bg-gray-300"
+              >
+                Lecture
+              </Link>
+
+              <Link
+                to="/film/$id"
+                params={{ id: String(selectedMovie.id) }}
+                className="rounded-lg bg-gray-700/70 px-6 py-3 text-white transition hover:bg-gray-600"
+              >
+                Plus d'infos
+              </Link>
+            </div>
           </div>
         </div>
       )}
 
-      {/* 🎞️ LISTE DES FILMS */}
-      <div className="flex gap-4 overflow-x-auto">
-        {movies?.map((movie: any) => (
-          <Link
-            key={movie.imdbID}
-            to="/film/$id"
-            params={{ id: movie.imdbID }}
-          >
+      <div className="flex gap-4 overflow-x-auto pb-4 scroll-smooth">
+        {filteredMovies.map((movie) => (
+          <Link key={movie.id} to="/film/$id" params={{ id: String(movie.id) }}>
             <img
-              src={movie.Poster}
-              alt={movie.Title}
-              onMouseEnter={() => setSelectedMovie(movie)} // 🔥 effet Netflix
-              className="w-[150px] rounded-lg cursor-pointer hover:scale-110 transition duration-300"
+              src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+              alt={movie.title}
+              onMouseEnter={() => setSelectedMovie(movie)}
+              className="w-[150px] cursor-pointer rounded-lg transition duration-300 hover:scale-110"
             />
           </Link>
         ))}
@@ -79,3 +116,5 @@ const CategoryPage = () => {
 };
 
 export default CategoryPage;
+
+
