@@ -28,3 +28,17 @@ export async function getMovieById(id: string) {
   const data = await response.json();
   return data;
 }
+
+export async function getMoviesByCategory(category: string) {
+  const response = await fetch(
+    `https://www.omdbapi.com/?s=${category}&apikey=42eeb430`
+  );
+
+  const data = await response.json();
+
+  if (data.Response === "False") {
+    return [];
+  }
+
+  return data.Search;
+}
