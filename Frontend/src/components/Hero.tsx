@@ -1,16 +1,18 @@
 ﻿import { Link } from "@tanstack/react-router";
-import type { TmdbMovie } from "../shared/types/tmdb.types";
+import type { OmdbMovie } from "../shared/types/omdb.types";
 
 interface HeroProps {
-  movie: TmdbMovie;
+  movie: OmdbMovie;
 }
 
+const FALLBACK_BACKDROP =
+  "https://via.placeholder.com/1280x720/18181b/ffffff?text=No+Image";
+
 export default function Hero({ movie }: HeroProps) {
-  const backgroundImage = movie.backdrop_path
-    ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
-    : movie.poster_path
-      ? `https://image.tmdb.org/t/p/original${movie.poster_path}`
-      : "";
+  const backgroundImage =
+    movie.Poster && movie.Poster !== "N/A"
+      ? movie.Poster
+      : FALLBACK_BACKDROP;
 
   return (
     <section
@@ -18,10 +20,11 @@ export default function Hero({ movie }: HeroProps) {
       style={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: "center top",
       }}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-black/20" />
+      <div className="absolute inset-0 bg-black/55" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/75 to-black/25" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
 
       <div className="relative mx-auto flex min-h-[70vh] max-w-7xl items-end px-6 pb-16 pt-28">
@@ -30,18 +33,20 @@ export default function Hero({ movie }: HeroProps) {
             Film mis en avant
           </p>
 
-          <h1 className="text-5xl font-black tracking-tight text-white md:text-7xl">
-            {movie.title}
+          <h1 className="max-w-[12ch] text-5xl font-black tracking-tight text-white md:text-7xl">
+            {movie.Title}
           </h1>
 
-          <p className="mt-5 line-clamp-4 text-base text-zinc-300 md:text-lg">
-            {movie.overview || "Découvrez ce film sur CineConnect."}
+          <p className="mt-3 text-lg text-zinc-300">{movie.Year}</p>
+
+          <p className="mt-5 text-base text-zinc-300 md:text-lg">
+            Découvrez ce film sur CineConnect.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
               to="/film/$id"
-              params={{ id: String(movie.id) }}
+              params={{ id: movie.imdbID }}
               className="rounded-xl bg-red-600 px-6 py-3 font-semibold text-white transition hover:bg-red-700"
             >
               Voir le film

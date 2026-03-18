@@ -1,24 +1,27 @@
 import MovieCard from "./MovieCard";
-import type { TmdbMovie } from "../shared/types/tmdb.types";
+import type { OmdbMovie } from "../shared/types/omdb.types";
+import { cleanMovies } from "../shared/movieFilters";
 
 interface MovieGridProps {
-  movies?: TmdbMovie[];
+  movies?: OmdbMovie[];
 }
 
 export default function MovieGrid({ movies = [] }: MovieGridProps) {
-  if (movies.length === 0) {
+  const visibleMovies = cleanMovies(movies);
+
+  if (visibleMovies.length === 0) {
     return <p className="text-white">Aucun film trouvé</p>;
   }
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-      {movies.map((movie) => (
+      {visibleMovies.map((movie) => (
         <MovieCard
-          key={movie.id}
-          title={movie.title}
-          year={movie.release_date?.split("-")[0] ?? "N/A"}
-          posterPath={movie.poster_path}
-          movieId={movie.id}
+          key={movie.imdbID}
+          title={movie.Title}
+          year={movie.Year}
+          poster={movie.Poster}
+          imdbID={movie.imdbID}
         />
       ))}
     </div>

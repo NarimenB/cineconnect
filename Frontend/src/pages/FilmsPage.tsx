@@ -1,17 +1,12 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { searchMovies } from "../services/tmdb.service";
+import { useSearchMovies } from "../hooks/useMovies";
 import ContentRow from "../components/ContentRow";
 
 export default function FilmsPage() {
   const [search, setSearch] = useState("batman");
+  const { data, isLoading, isError } = useSearchMovies(search);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["films-page", search],
-    queryFn: () => searchMovies(search),
-  });
-
-  const movies = data?.results ?? [];
+  const movies = data?.Search ?? [];
 
   return (
     <div className="min-h-screen bg-black px-6 pb-20 pt-28 text-white">
@@ -22,9 +17,6 @@ export default function FilmsPage() {
               Catalogue
             </p>
             <h1 className="text-5xl font-black tracking-tight">Films</h1>
-            <p className="mt-3 max-w-2xl text-zinc-400">
-              Explorez le catalogue CineConnect et trouvez votre prochain film à regarder.
-            </p>
           </div>
 
           <div className="w-full md:max-w-md">
@@ -33,7 +25,7 @@ export default function FilmsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Rechercher un film..."
-              className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-5 py-4 text-white outline-none transition placeholder:text-zinc-400 focus:border-red-500"
+              className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-5 py-4 text-white outline-none"
             />
           </div>
         </div>
@@ -41,15 +33,8 @@ export default function FilmsPage() {
         {isLoading && <p>Chargement...</p>}
         {isError && <p>Erreur lors du chargement des films.</p>}
 
-        {!isLoading && !isError && (
-          <ContentRow
-            title={search ? `Résultats pour "${search}"` : "Films"}
-            movies={movies}
-          />
-        )}
+        {!isLoading && !isError && <ContentRow title={`Résultats pour "${search}"`} movies={movies} />}
       </div>
     </div>
   );
 }
-
-

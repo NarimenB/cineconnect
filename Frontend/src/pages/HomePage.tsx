@@ -1,27 +1,37 @@
-import { useState } from "react";
+import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { searchMovies } from "../services/tmdb.service";
+import { useSearchMovies } from "../hooks/useMovies";
 import Hero from "../components/Hero";
 import ContentRow from "../components/ContentRow";
+import { cleanMovies } from "../shared/movieFilters";
 
 const genres = [
-  { id: 28, name: "Action" },
-  { id: 10749, name: "Romance" },
-  { id: 35, name: "Comédie" },
-  { id: 18, name: "Drame" },
-  { id: 27, name: "Horreur" },
+  { label: "Action", key: "action" },
+  { label: "Romance", key: "romance" },
+  { label: "Comedy", key: "comedy" },
+  { label: "Drama", key: "drama" },
+  { label: "Horror", key: "horror" },
+];
+
+const featuredQueries = [
+  "batman",
+  "interstellar",
+  "inception",
+  "gladiator",
+  "joker",
+  "dune",
+  "the dark knight",
+  "avengers",
 ];
 
 export default function HomePage() {
-  const [search, setSearch] = useState("batman");
+  const randomQuery = useMemo(() => {
+    const index = Math.floor(Math.random() * featuredQueries.length);
+    return featuredQueries[index];
+  }, []);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["movies", search],
-    queryFn: () => searchMovies(search),
-  });
-
-  const movies = data?.results ?? [];
+  const { data, isLoading } = useSearchMovies(randomQuery);
+  const movies = cleanMovies(data?.Search ?? []);
   const featuredMovie = movies[0];
 
   return (
@@ -47,18 +57,6 @@ export default function HomePage() {
         </section>
       )}
 
-      <section className="-mt-6 relative z-10 mx-auto max-w-6xl px-6">
-        <div className="rounded-2xl border border-white/10 bg-zinc-900/85 p-3 shadow-2xl backdrop-blur-md">
-          <input
-            type="text"
-            placeholder="Rechercher un film..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl bg-slate-800/90 px-5 py-4 text-white outline-none transition placeholder:text-zinc-400 focus:ring-2 focus:ring-red-600"
-          />
-        </div>
-      </section>
-
       <div className="space-y-16 pb-20 pt-14">
         {isLoading ? (
           <p className="px-6 text-white">Chargement...</p>
@@ -72,12 +70,12 @@ export default function HomePage() {
           <div className="flex flex-wrap gap-4">
             {genres.map((genre) => (
               <Link
-                key={genre.id}
+                key={genre.key}
                 to="/films/$categorie"
-                params={{ categorie: String(genre.id) }}
+                params={{ categorie: genre.key }}
                 className="rounded-xl border border-white/10 bg-zinc-900 px-6 py-3 text-base font-medium text-white transition hover:border-red-500 hover:bg-red-600"
               >
-                {genre.name}
+                {genre.label}
               </Link>
             ))}
           </div>
