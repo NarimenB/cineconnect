@@ -11,59 +11,62 @@ const Navbar: React.FC<NavbarProps> = ({ onSearch }) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
-    if (onSearch) {
-      onSearch(query);
-    }
+    onSearch?.(query);
   };
 
   return (
-    <nav className="bg-black/90 text-white p-4 fixed top-0 w-full z-50">
-      <div className="flex justify-between items-center max-w-7xl mx-auto">
-        <div className="flex items-center space-x-8">
-          <Link to="/" className="text-2xl font-bold text-red-600">
+    <nav className="fixed top-0 z-50 w-full bg-black/90 px-6 py-4 text-white backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-between">
+        <div className="flex items-center gap-10">
+          <Link
+            to="/"
+            className="font-['Pacifico'] text-4xl leading-none text-green-600 no-underline drop-shadow-[0_0_8px_rgba(34,197,94,0.35)]"
+          >
             CineConnect
           </Link>
 
-          <div className="hidden md:flex space-x-6">
+          <div className="hidden items-center gap-8 md:flex">
             <Link
               to="/"
-              className="hover:text-red-400 transition-colors"
-              activeProps={{ className: "text-red-400" }}
+              className="text-lg text-green-700 transition hover:text-green-500"
+              activeProps={{ className: "text-green-500 text-lg" }}
             >
               Accueil
             </Link>
+
             <Link
               to="/films"
-              className="hover:text-red-400 transition-colors"
-              activeProps={{ className: "text-red-400" }}
+              className="text-lg text-green-700 transition hover:text-green-500"
+              activeProps={{ className: "text-green-500 text-lg" }}
             >
               Films
             </Link>
+
             <Link
               to="/browse"
-              className="hover:text-red-400 transition-colors"
-              activeProps={{ className: "text-red-400" }}
+              className="text-lg text-green-700 transition hover:text-green-500"
+              activeProps={{ className: "text-green-500 text-lg" }}
             >
               Explorer
             </Link>
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              placeholder="Rechercher un film..."
-              className="bg-zinc-800 text-white px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-red-600 w-64"
-            />
-            <span className="absolute right-3 top-2.5 text-gray-400">🔍</span>
-          </div>
+        <div className="relative hidden md:block">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            placeholder="Rechercher un film..."
+            className="w-80 rounded-full border border-zinc-800 bg-zinc-900 px-5 py-3 pr-12 text-white outline-none transition placeholder:text-zinc-400 focus:border-zinc-600"
+          />
+          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-lg text-zinc-400">
+            🔍
+          </span>
         </div>
       </div>
     </nav>
   );
 };
 
-export default Navbar;;
+export default Navbar;
